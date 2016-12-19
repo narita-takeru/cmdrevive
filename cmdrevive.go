@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-func Start(targetDir, pattern, cmdStr string, args []string) {
+func Start(targetDirs []string, pattern, cmdStr string, args []string) {
 
 	targetFileNameRegex := regexp.MustCompile(pattern)
 
@@ -21,7 +21,7 @@ func Start(targetDir, pattern, cmdStr string, args []string) {
 	cmd = exec.Command(cmdStr, args...)
 	go doEventTrigger(cmd)
 
-	eventDriven(targetDir, func(changedFileName string) {
+	eventDriven(targetDirs, func(changedFileName string) {
 		mutex.Lock()
 		defer mutex.Unlock()
 		if targetFileNameRegex.MatchString(changedFileName) {
@@ -43,7 +43,7 @@ func Start(targetDir, pattern, cmdStr string, args []string) {
 }
 
 // eventDriven do something if changed file status.
-func eventDriven(targetDir string, something func(changedFileNme string)) {
+func eventDriven(targetDirs []string, something func(changedFileNme string)) {
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -71,9 +71,12 @@ func eventDriven(targetDir string, something func(changedFileNme string)) {
 		}
 	}()
 
-	err = watcher.Add(targetDir)
-	if err != nil {
-		panic(err)
+	for _, dir := range targetDirs {
+		fmt.Println(dir)
+		err = watcher.Add(dir)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	<-done

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/narita-takeru/cmdrevive"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -12,5 +13,7 @@ func main() {
 	cmd := os.Args[3]
 	args := os.Args[4:]
 
-	cmdrevive.Start(targetDir, pattern, cmd, args)
+	dirs := strings.Split(targetDir, " ")
+
+	cmdrevive.Start(dirs, pattern, cmd, args)
 }
